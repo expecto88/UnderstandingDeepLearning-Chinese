@@ -1,35 +1,27 @@
-# 行内公式渲染测试 / Inline math test
+# 行内公式渲染测试 Round 2
 
-## ASCII context
+## Tight inside + space outside (candidate fix form)
 
-Var1: $\phi$
+V12: 参数 $\phi$ 拟合模型
 
-Var2: $ \phi $
+V13: 损失函数 $L[\phi]$ 的最小值
 
-Var3: $L[\phi] = \sum_i \ell_i$
+V14: $ \phi $ ascii-spaces-outside-tight-inside-check: a$\phi$b
 
-Var4: $ \mathbf f [\mathbf x, \phi] $
+V15: a $\phi$ b
 
-## CJK context
+## One-sided CJK adjacency
 
-Var5: 参数 $ \phi $ 拟合
+V16: 中文在前$\phi$后跟空格
 
-Var6: 参数$\phi$拟合
+V17: 空格在前 $\phi$中文在后
 
-Var7: 损失函数 $ L[\phi] $ 的最小值
+## Braces tight
 
-## Unicode inside math
+V18: 训练集 $\{\mathbf x_{i}, \mathbf y_{i}\}$ 作为输入
 
-Var8: $ ϕ $
+V19: 模型 $\mathbf f [\mathbf x, \phi]$ 拟合
 
-Var9: $ ∂f/∂x $
+## Multiple formulas one line, tight inside
 
-Var10: $ \{\mathbf x_{i}, \mathbf y_{i}\} $
-
-Var11: 多个公式一行：$ \phi $ 和 $ \theta $
-
-## Block reference
-
-$$
-L[\phi]
-$$
+V20: 用参数 $\phi$ 去拟合模型 $\mathbf f [\mathbf x, \phi]$，从而找到损失函数 $L[\phi]$
