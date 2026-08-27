@@ -1,0 +1,2 @@
+# git attributes — apply the ghmath clean/smudge filters to chapter markdown
+chinese/*.md filter=ghmath
