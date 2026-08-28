@@ -258,3 +258,28 @@
   * C.5 概率分布之间的距离 - Distances between probability distributions
 * **参考文献** - Bibliography
 * **索引** - Index
+
+----
+
+## 数学公式兼容（GitHub + Obsidian）
+
+本仓库使用 Git clean/smudge filter，让提交到 GitHub 的多行公式与本地
+Obsidian 工作区分别保留各自所需的反斜杠形式。每次在新环境克隆仓库后，
+请先配置 filter：
+
+```bash
+bash scripts/setup_filters.sh
+```
+
+如果配置 filter 时仓库已经完成检出，请确认工作区没有未保存的修改，再让
+Git 对章节重新执行 smudge filter：
+
+```bash
+git checkout -- chinese
+```
+
+编辑块公式时，开头和结尾的 `$$` 必须各自独占一行。提交前运行公式审计：
+
+```bash
+python scripts/audit_math_delimiters.py
+```
