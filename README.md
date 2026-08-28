@@ -278,7 +278,8 @@ Git 对章节重新执行 smudge filter：
 git checkout -- chinese
 ```
 
-编辑块公式时，开头和结尾的 `$$` 必须各自独占一行。提交前运行公式审计：
+编辑块公式时，开头和结尾的 `$$` 必须顶格独占一行，公式块与前后正文之间
+必须保留空行，公式块内部不要留空行。提交前运行公式审计：
 
 ```bash
 python scripts/audit_math_delimiters.py

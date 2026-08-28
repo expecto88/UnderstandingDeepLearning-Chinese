@@ -3,9 +3,9 @@
 """Audit display-math delimiters in every translated chapter.
 
 The ghmath clean/smudge filter intentionally handles only display-math blocks
-whose opening and closing ``$$`` delimiters are each on a line by themselves.
-This audit prevents unsupported single-line or attached-delimiter forms from
-silently bypassing the filter.
+whose opening and closing ``$$`` delimiters are each at column zero on a line
+by themselves. GitHub also needs these blocks separated from surrounding prose.
+This audit keeps the source syntax aligned with both requirements.
 """
 
 from pathlib import Path
@@ -22,22 +22,33 @@ def audit_file(path: Path) -> tuple[list[str], int]:
     opening_line = 0
     block_count = 0
 
-    for line_number, line in enumerate(
-        path.read_text(encoding="utf-8-sig").splitlines(), start=1
-    ):
+    lines = path.read_text(encoding="utf-8-sig").splitlines()
+    for line_number, line in enumerate(lines, start=1):
         if "$$" not in line:
+            if inside_block and not line.strip():
+                errors.append(
+                    f"{path.name}:{line_number}: blank line inside display math"
+                )
             continue
 
-        if line.strip() != "$$":
+        if line != "$$":
             errors.append(
-                f"{path.name}:{line_number}: '$$' must be on a line by itself"
+                f"{path.name}:{line_number}: '$$' must be alone at column zero"
             )
             continue
 
         if inside_block:
             inside_block = False
             block_count += 1
+            if line_number < len(lines) and lines[line_number].strip():
+                errors.append(
+                    f"{path.name}:{line_number}: blank line required after block"
+                )
         else:
+            if line_number > 1 and lines[line_number - 2].strip():
+                errors.append(
+                    f"{path.name}:{line_number}: blank line required before block"
+                )
             inside_block = True
             opening_line = line_number
 
@@ -69,7 +80,7 @@ def main() -> int:
         return 1
 
     print(
-        f"OK: {len(chapter_files)} chapter files, "
+        f"OK: {len(chapter_files)} Markdown files, "
         f"{total_blocks} canonical display-math blocks"
     )
     return 0
