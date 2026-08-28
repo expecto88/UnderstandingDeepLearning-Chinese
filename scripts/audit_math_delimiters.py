@@ -9,6 +9,7 @@ This audit keeps the source syntax aligned with both requirements.
 """
 
 from pathlib import Path
+import re
 import sys
 
 
@@ -25,10 +26,16 @@ def audit_file(path: Path) -> tuple[list[str], int]:
     lines = path.read_text(encoding="utf-8-sig").splitlines()
     for line_number, line in enumerate(lines, start=1):
         if "$$" not in line:
-            if inside_block and not line.strip():
-                errors.append(
-                    f"{path.name}:{line_number}: blank line inside display math"
-                )
+            if inside_block:
+                if not line.strip():
+                    errors.append(
+                        f"{path.name}:{line_number}: blank line inside display math"
+                    )
+                for match in re.finditer(r"\\{4,}", line):
+                    errors.append(
+                        f"{path.name}:{line_number}: noncanonical local "
+                        f"backslash run of length {len(match.group(0))}"
+                    )
             continue
 
         if line != "$$":
