@@ -22,6 +22,7 @@ def audit_file(path: Path) -> tuple[list[str], int]:
     inside_block = False
     opening_line = 0
     block_count = 0
+    raw_superscript_stars = 0
 
     lines = path.read_text(encoding="utf-8-sig").splitlines()
     for line_number, line in enumerate(lines, start=1):
@@ -36,6 +37,9 @@ def audit_file(path: Path) -> tuple[list[str], int]:
                         f"{path.name}:{line_number}: noncanonical local "
                         f"backslash run of length {len(match.group(0))}"
                     )
+                raw_superscript_stars += len(
+                    re.findall(r"\^(?:\{\*\}|\*)", line)
+                )
             continue
 
         if line != "$$":
@@ -45,8 +49,14 @@ def audit_file(path: Path) -> tuple[list[str], int]:
             continue
 
         if inside_block:
+            if raw_superscript_stars >= 2:
+                errors.append(
+                    f"{path.name}:{opening_line}: multiple raw superscript '*' "
+                    "tokens can be consumed as Markdown; use '\\ast'"
+                )
             inside_block = False
             block_count += 1
+            raw_superscript_stars = 0
             if line_number < len(lines) and lines[line_number].strip():
                 errors.append(
                     f"{path.name}:{line_number}: blank line required after block"
@@ -58,6 +68,7 @@ def audit_file(path: Path) -> tuple[list[str], int]:
                 )
             inside_block = True
             opening_line = line_number
+            raw_superscript_stars = 0
 
     if inside_block:
         errors.append(
