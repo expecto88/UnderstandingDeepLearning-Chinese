@@ -5,10 +5,14 @@
 Inside standalone ``$$`` blocks, runs of four/five committed backslashes are
 decoded to two/three local backslashes. This preserves both ordinary LaTeX
 row separators and separators immediately followed by commands such as
-``\\theta``. Everything outside those blocks is kept.
+``\\theta``. GitHub-safe text equation labels are restored to local
+``\\tag{...}`` commands. Everything outside those blocks is kept.
 """
 import re
 import sys
+
+
+_GITHUB_TAG_RE = re.compile(r"\\qquad\\text\{\(([^{}\n]+)\)\}")
 
 
 def _smudge_backslash_run(match):
@@ -25,6 +29,7 @@ def _transform_block(match):
     body = re.sub(r"^[ \t]*\n", "", body)
     body = re.sub(r"\n[ \t]*$", "", body)
     body = re.sub(r"\\{2,}", _smudge_backslash_run, body)
+    body = _GITHUB_TAG_RE.sub(r"\\tag{\1}", body)
     return "$$\n" + body + "\n$$"
 
 

@@ -5,10 +5,15 @@
 Inside standalone ``$$`` blocks, blank lines are removed and local row
 separators are encoded reversibly for GitHub Markdown: a run of two
 backslashes becomes four, while three (a row separator immediately followed
-by a command slash) becomes five. Everything outside those blocks is kept.
+by a command slash) becomes five. Equation tags are converted to an inline
+text label because Chromium lays out MathML ``mlabeledtr`` incorrectly.
+Everything outside those blocks is kept.
 """
 import re
 import sys
+
+
+_TAG_RE = re.compile(r"\\tag\{([^{}\n]+)\}")
 
 
 def _clean_backslash_run(match):
@@ -24,6 +29,7 @@ def _transform_block(match):
     body = re.sub(r"\n[ \t]*\n", "\n", body)
     body = re.sub(r"^[ \t]*\n", "", body)
     body = re.sub(r"\n[ \t]*$", "", body)
+    body = _TAG_RE.sub(r"\\qquad\\text{(\1)}", body)
     body = re.sub(r"\\{2,}", _clean_backslash_run, body)
     return "$$\n" + body + "\n$$"
 

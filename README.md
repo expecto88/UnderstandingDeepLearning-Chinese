@@ -279,8 +279,22 @@ git checkout -- chinese
 ```
 
 编辑块公式时，开头和结尾的 `$$` 必须顶格独占一行，公式块与前后正文之间
-必须保留空行，公式块内部不要留空行。提交前运行公式审计：
+必须保留空行，公式块内部不要留空行。多行公式必须放在 `aligned`、`array`
+或矩阵等显式多行环境中，不要在这些环境之外直接使用 `\\`。
+
+本地 Obsidian 源文件使用 `\tag{4.1}` 编号；clean filter 会在 GitHub blob
+中把它转换为 `\qquad\text{(4.1)}`，避免 Chromium 将 MathML
+`mlabeledtr` 压成竖列。smudge filter 会在检出时恢复原来的 `\tag`。
+
+提交前运行公式审计：
 
 ```bash
 python scripts/audit_math_delimiters.py
+```
+
+暂存章节后还应验证 GitHub blob 与本地工作区能够精确往返：
+
+```bash
+git add --renormalize chinese
+python scripts/audit_math_index.py
 ```
